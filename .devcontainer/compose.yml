@@ -2,7 +2,6 @@ services:
   rails:
     build:
       dockerfile: Dockerfile
-      context: ..
     volumes:
       - ..:/workspace
     ports:
