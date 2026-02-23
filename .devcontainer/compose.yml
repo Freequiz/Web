@@ -1,9 +1,9 @@
 services:
   rails:
     build:
-      dockerfile: development.Dockerfile
+      dockerfile: Dockerfile
     volumes:
-      - .:/workspace
+      - ..:/workspace
     ports:
       - "3000:3000"
     environment:

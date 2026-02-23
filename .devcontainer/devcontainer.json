@@ -2,7 +2,7 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
 {
     "name": "Freequiz",
-    "dockerComposeFile": "../development.compose.yml",
+    "dockerComposeFile": "compose.yml",
     "service": "rails",
     "workspaceFolder": "/workspace",
     "shutdownAction": "stopCompose",
@@ -18,7 +18,7 @@
                 "eamodio.gitlens"
             ]
         }
-    }
+    },
 
     // Features to add to the dev container. More info: https://containers.dev/features.
     // "features": {},
@@ -27,7 +27,7 @@
     // "forwardPorts": [],
 
     // Uncomment the next line to run commands after the container is created.
-    // "postCreateCommand": "bundle install && npm install && git clone https://github.com/ShadowCrafter011/RailsTranslator.git /RailsTranslator && pip install -r /RailsTranslator/requirements.txt"
+    "postCreateCommand": "postcreate.sh"
 
     // Configure tool-specific properties.
     // "customizations": {},
