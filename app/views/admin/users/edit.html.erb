@@ -14,12 +14,8 @@
     <div><strong>End user agreement: </strong><%= @user_target.agb %></div>
     <div><strong>Sign in count: </strong><%= @user_target.sign_in_count %></div>
     <div title="<%= @user_target.current_sign_in_at %>"><strong>Current sign in </strong><%= distance_of_time_in_words_to_now(@user_target.current_sign_in_at, locale: :en) %> ago</div>
-    <div><strong>Current sign in IP: </strong> <%= @user_target.current_sign_in_ip %></div>
-    <div><strong>Current sign in from: </strong><%= display_field(@current_sign_in_location) %></div>
     <% if @user_target.last_sign_in_at.present? %>
         <div title="<%= @user_target.last_sign_in_at %>"><strong>Last sign in </strong><%= distance_of_time_in_words_to_now(@user_target.last_sign_in_at, locale: :en) %> ago</div>
-        <div><strong>Last sign in IP: </strong><%= @user_target.last_sign_in_ip %></div>
-        <div><strong>Last sign in from: </strong><%= display_field(@last_sign_in_location) %></div>
     <% end %>
 </div>
 
@@ -41,16 +37,6 @@
     <% if @user_target.banned %>
         <div><strong>Ban reason: </strong><%= display_field(@user_target.ban_reason) %></div>
     <% end %>
-    <div><strong>Referenced IPs banned: </strong>
-        <% if @referenced_ips_banned.count.positive? %>
-            <%= @referenced_ips_banned.join(", ") %>
-        <% else %>
-            None
-        <% end %>
-    </div>
-    <% if @ip_ban_reasons.count.positive? %>
-        <div><strong>IP ban reasons: </strong><%= @ip_ban_reasons.map { |reason| display_field(reason) }.join(", ") %></div>
-    <% end %>
 </div>
 
 <div class="grid grid-flow-row md:grid-cols-2 gap-2">
@@ -58,12 +44,6 @@
         <%= link_to "Ban user",  admin_user_ban_path, class: "btn-secondary-sleek grow" %>
     <% else %>
         <%= link_to "Unban user", admin_user_unban_path, data: { turbo_method: :patch, turbo_confirm: "Are you sure you want to unban #{@user_target.username} for reason #{@user_target.ban_reason}" }, class: "btn-success-sleek grow"%>
-    <% end %>
-
-    <% unless BannedIp.find_by(ip: @user_target.current_sign_in_ip).present? %>
-        <%= link_to "Ban IP #{@user_target.current_sign_in_ip}", admin_ban_ip_path(ip: @user_target.current_sign_in_ip, return: request.path), class: "btn-secondary-sleek" %>
-    <% else %>
-        <%= link_to "Unban IP #{@user_target.current_sign_in_ip}", admin_ban_ip_path(ip: @user_target.current_sign_in_ip, return: request.path), data: { turbo_method: :delete, turbo_confirm: "Are you sure you want to unban IP #{@user_target.current_sign_in_ip} for reason #{@ip_ban_reasons.first}" }, class: "btn-success-sleek" %>
     <% end %>
 </div>
 

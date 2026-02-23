@@ -26,7 +26,7 @@ class User::SessionsController < ApplicationController
 
             session[:user_id] = user.first.id
 
-            user.first.sign_in request.remote_ip
+            user.first.sign_in
             # Reset the locale in session store to allow the saved one to take over
             session[:locale] = nil
             redirect_to(params[:gg].present? ? params[:gg] : user_path, notice: tp("success").sub("%s", user.first.username))

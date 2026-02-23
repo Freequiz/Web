@@ -7,7 +7,6 @@ one:
   password_digest: <%= BCrypt::Password.create("one") %>
   created_at: <%= Time.now %>
   updated_at: <%= Time.now %>
-  current_sign_in_ip: "1.2.3.4"
   current_sign_in_at: <%= Time.now %>
   sign_in_count: 1
 

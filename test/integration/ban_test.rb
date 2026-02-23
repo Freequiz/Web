@@ -45,17 +45,4 @@ class BanTest < ActionDispatch::IntegrationTest
             assert_response :unauthorized
         end
     end
-
-    test "cannot visit routes when ip banned" do
-        sign_in :one
-
-        assert_changes -> { users(:one).reload.banned? }, from: false, to: true do
-            BannedIp.create(ip: users(:one).reload.current_sign_in_ip, reason: "test")
-        end
-
-        get_routes.each do |route|
-            get route
-            assert_response :unauthorized
-        end
-    end
 end

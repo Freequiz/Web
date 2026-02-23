@@ -124,7 +124,6 @@ class Api::UserController < ApplicationController
         end
 
         user = User.new user_params
-        user.current_sign_in_ip = request.remote_ip
         user.current_sign_in_at = Time.now
 
         if user.save
@@ -193,7 +192,7 @@ class Api::UserController < ApplicationController
             )
         end
 
-        user.sign_in request.remote_ip
+        user.sign_in
 
         return json({ success: false, token: "user.banned", reason: user.ban_reason }, :unauthorized) if user.banned
 
