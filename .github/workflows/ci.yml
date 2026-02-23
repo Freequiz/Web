@@ -39,20 +39,20 @@ jobs:
         run: bin/importmap audit
 
   # Temporarly disabled because of the open issue described here: https://github.com/orgs/community/discussions/147345
-  # lint:
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #     - name: Checkout code
-  #       uses: actions/checkout@v4
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-  #     - name: Set up Ruby
-  #       uses: ruby/setup-ruby@v1
-  #       with:
-  #         ruby-version: .ruby-version
-  #         bundler-cache: true
+      - name: Set up Ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: .ruby-version
+          bundler-cache: true
 
-  #     - name: Lint code for consistent style
-  #       run: bin/rubocop -f github
+      - name: Lint code for consistent style
+        run: bin/rubocop -f github
 
   test:
     runs-on: ubuntu-latest
