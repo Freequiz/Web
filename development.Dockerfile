@@ -8,7 +8,7 @@ RUN apt-get update -qq && \
 
 # Install python to use translation tool
 RUN apt-get update -qq && \
-    apt-get install python3 python3-pip -y
+    apt-get install python3 python3-pip python3-venv -y
 
 # Install node for postcss with tailwindcss-rails
 ENV NODE_VERSION=22.12.0
