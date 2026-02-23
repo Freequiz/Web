@@ -1,7 +1,7 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.1.2"
+ruby "3.2.10"
 
 gem "ffi", "< 1.17.0"
 gem "foreman"
@@ -91,6 +91,6 @@ gem "rubocop", "~> 1.59"
 
 gem "htmlbeautifier", "~> 1.4"
 
-gem "brakeman", "~> 7.0"
+gem "brakeman", "~> 8.0"
 
 gem "capybara"

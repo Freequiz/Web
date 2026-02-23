@@ -1,4 +1,4 @@
-FROM ruby:3.1.2-slim-bullseye
+FROM ruby:3.2.10
 
 ENV RAILS_ENV="development" \
     BUNDLE_WITHOUT=""
