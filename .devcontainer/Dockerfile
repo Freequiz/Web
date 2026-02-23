@@ -4,11 +4,13 @@ ENV RAILS_ENV="development" \
     BUNDLE_WITHOUT=""
 
 RUN apt-get update -qq && \
-    apt-get install --no-install-recommends -y build-essential git libpq-dev pkg-config curl libjemalloc2 libvips postgresql-client
+    apt-get install --no-install-recommends -y \
+    build-essential git libpq-dev pkg-config curl libjemalloc2 libvips postgresql-client
 
 # Install python to use translation tool
 RUN apt-get update -qq && \
-    apt-get install python3 python3-pip python3-venv -y
+    apt-get install -y \
+    python3 python3-pip python3-venv
 
 # Install node for postcss with tailwindcss-rails
 ENV NODE_VERSION=22.12.0

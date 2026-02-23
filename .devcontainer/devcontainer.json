@@ -2,7 +2,7 @@
 // README at: https://github.com/devcontainers/templates/tree/main/src/docker-existing-dockerfile
 {
     "name": "Freequiz",
-    "dockerComposeFile": "../development.compose.yml",
+    "dockerComposeFile": "compose.yml",
     "service": "rails",
     "workspaceFolder": "/workspace",
     "shutdownAction": "stopCompose",
