@@ -43,22 +43,10 @@ class Admin::UsersController < ApplicationController
         @user_target = User.find_by(username: params[:username])
         @current_sign_in_location = nil
         @last_sign_in_location = nil
-        if @user_target.current_sign_in_ip
-            res = HTTParty.get("https://ipwho.is/#{@user_target.current_sign_in_ip}")
-            body = JSON.parse res.body
-            @current_sign_in_location = "#{body["city"]}, #{body["region"]}, #{body["country"]}" if body["success"]
-        end
-        if @user_target.last_sign_in_ip
-            res = HTTParty.get("https://ipwho.is/#{@user_target.last_sign_in_ip}")
-            body = JSON.parse res.body
-            @last_sign_in_location = "#{body["city"]}, #{body["region"]}, #{body["country"]}" if body["success"]
-        end
-        find_ban_data
     end
 
     def update
         @user_target = User.find_by(username: params[:username])
-        find_ban_data
 
         was_verified = @user_target.verified?
         email_before = @user_target.email
@@ -173,12 +161,5 @@ class Admin::UsersController < ApplicationController
 
     def ban_ip_params
         params.require(:banned_ip).permit(:ip, :reason)
-    end
-
-    def find_ban_data
-        @referenced_ips_banned = [@user_target&.current_sign_in_ip, @user_target&.last_sign_in_ip]
-        @referenced_ips_banned = @referenced_ips_banned.uniq.map { |ip| BannedIp.find_by(ip:) }.filter(&:present?)
-        @ip_ban_reasons = @referenced_ips_banned.map(&:reason)
-        @referenced_ips_banned.map!(&:ip)
     end
 end

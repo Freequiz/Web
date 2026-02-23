@@ -39,7 +39,7 @@ class User::PasswordController < ApplicationController
         )
             session[:user_id] = user.id
 
-            user.sign_in request.remote_ip
+            user.sign_in
 
             redirect_to user_path, notice: tp("changed_password")
         else

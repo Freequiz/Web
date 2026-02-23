@@ -57,7 +57,6 @@ class User::UserController < ApplicationController
 
         @new_user = User.new(user_params)
 
-        @new_user.current_sign_in_ip = request.remote_ip
         @new_user.current_sign_in_at = Time.now
 
         if @new_user.save

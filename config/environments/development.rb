@@ -17,6 +17,16 @@ Rails.application.configure do
     # Enable server timing
     config.server_timing = true
 
+    # Codespace stuff
+    codespace_name = ENV.fetch("CODESPACE_NAME", nil)
+
+    # Allow codespace as host
+    config.hosts << "#{codespace_name}-3000.app.github.dev" unless codespace_name.nil?
+
+    # If codespace is active disable origin check: https://github.com/orgs/community/discussions/156532
+    # Codespace proxy sets the Origin header to http://localhost:3000 but request.base_url stays the URL of the codespace
+    config.action_controller.forgery_protection_origin_check = false unless codespace_name.nil?
+
     # Enable/disable caching. By default caching is disabled.
     # Run rails dev:cache to toggle caching.
     if Rails.root.join("tmp/caching-dev.txt").exist?
