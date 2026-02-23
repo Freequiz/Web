@@ -1,4 +1,6 @@
-FROM ruby:3.2.10
+# Important that cat /etc/os-release is Debian 12 for python version 3.11 as
+# flatdict doesn't support newer python releases for the RailsTranslator
+FROM ruby:3.2.10-bookworm
 
 ENV RAILS_ENV="development" \
     BUNDLE_WITHOUT=""
