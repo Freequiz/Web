@@ -16,18 +16,6 @@ class Api::BugReportController < ApplicationController
     else
       render :bug_creation_error, status: :unprocessable_entity
     end
-
-    # return json({ success: true, message: "Bug report created" }, :created) if report.save
-
-    # json(
-    #   {
-    #     success: false,
-    #     token: "record.invalid",
-    #     errors: report.errors.details,
-    #     message: "Could not create bug report"
-    #   },
-    #   :unprocessable_entity
-    # )
   end
 
   private
