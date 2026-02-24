@@ -326,6 +326,7 @@ class Api::QuizController < ApplicationController
     report = quiz.quiz_reports.new quiz_report_params
     report.user = @api_user
     if report.save
+      AdminMailer.with(quiz: quiz, quiz_report: report).new_quiz_report.deliver_later
       json({ success: true, message: "Quiz reported" }, :created)
     else
       json({ success: false, token: "record.invalid", message: "Record invalid", errors: report.errors.full_messages }, :unprocessable_entity)
