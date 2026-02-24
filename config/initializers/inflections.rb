@@ -16,16 +16,16 @@
 # end
 
 ActiveSupport::Inflector.inflections(:de) do |inflect|
-    inflect.plural "Übersetzung", "Übersetzungen"
-    inflect.plural "Bug", "Bugs"
+  inflect.plural "Übersetzung", "Übersetzungen"
+  inflect.plural "Bug", "Bugs"
 end
 
 ActiveSupport::Inflector.inflections(:fr) do |inflect|
-    inflect.plural "Traduction", "Traductions"
-    inflect.plural "Bug", "Bugs"
+  inflect.plural "Traduction", "Traductions"
+  inflect.plural "Bug", "Bugs"
 end
 
 ActiveSupport::Inflector.inflections(:it) do |inflect|
-    inflect.plural "Traduzione", "Traduzioni"
-    inflect.plural "Bug", "Bugs"
+  inflect.plural "Traduzione", "Traduzioni"
+  inflect.plural "Bug", "Bugs"
 end
