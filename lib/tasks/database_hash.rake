@@ -21,7 +21,7 @@ namespace :db do
     tables.each do |table|
       table_digest = Digest::SHA256.new
 
-      table.all.each do |obj|
+      table.order(id: :asc).all.each do |obj|
         text = JSON.dump(obj.attributes)
         digest << text
         table_digest << text
