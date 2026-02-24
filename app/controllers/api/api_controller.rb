@@ -7,10 +7,6 @@ class Api::ApiController < ApplicationController
   skip_around_action :switch_locale
 
   def languages
-    language_data = {}
-    Language.all.each do |lang|
-      language_data[lang.id] = { name: lang.name, locale: lang.locale }
-    end
-    json({ success: true, data: language_data })
+    @languages = Language.all
   end
 end

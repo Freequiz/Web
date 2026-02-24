@@ -3,3 +3,4 @@ de:
     create:
       bug_report_created: Bug erfolgreich gemeldet. Danke!
       failed_to_create: Bug konnte nicht gemeldet werden. Probieren sie es später erneut
+      bug_report_not_verified: Um Bugs zu melden musst du deine Email Adresse bestätigen

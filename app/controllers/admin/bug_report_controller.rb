@@ -9,11 +9,16 @@ class Admin::BugReportController < ApplicationController
   end
 
   def create
+    unless current_user.verified?
+      flash.alert = tp("bug_report_not_verified")
+      return redirect_to bug_report_params[:created_from]
+    end
+
     report = current_user.bug_reports.new(bug_report_params)
     if report.save
       flash.notice = tp("bug_report_created")
     else
-      flash.alert =  tp("failed_to_create")
+      flash.alert = tp("failed_to_create")
     end
     redirect_to bug_report_params[:created_from]
   end

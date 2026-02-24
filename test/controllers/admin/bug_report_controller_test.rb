@@ -2,9 +2,18 @@ require "test_helper"
 
 class Admin::BugReportControllerTest < ActionDispatch::IntegrationTest
   test "can create a bug report" do
-    sign_in :one
+    sign_in :confirmed
 
     assert_difference "BugReport.count", 1 do
+      post bug_report_path, params: { bug_report: { title: "Test", body: "Test", created_from: root_path } }
+      assert_redirected_to root_path
+    end
+  end
+
+  test "cannot create a bug report if email is not verified" do
+    sign_in :one
+
+    assert_no_difference "BugReport.count" do
       post bug_report_path, params: { bug_report: { title: "Test", body: "Test", created_from: root_path } }
       assert_redirected_to root_path
     end
