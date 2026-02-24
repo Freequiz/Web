@@ -180,13 +180,19 @@ class Quiz::QuizControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "can get quiz report form" do
-    sign_in :one
+    sign_in :confirmed
     get quiz_report_path(:one)
     assert_response :success
   end
 
-  test "can report a quiz" do
+  test "cannot get quiz report form without verified email" do
     sign_in :one
+    get quiz_report_path(:one)
+    assert_response :redirect
+  end
+
+  test "can report a quiz" do
+    sign_in :confirmed
     assert_difference "QuizReport.count", 1 do
       assert_emails User.admins.count do
         post quiz_report_path(:one), params: { quiz_report: { reason: "reason", spam: "1" } }
@@ -195,5 +201,16 @@ class Quiz::QuizControllerTest < ActionDispatch::IntegrationTest
     end
 
     assert QuizReport.last.spam
+  end
+
+  test "cannot report a quiz without verified email" do
+    sign_in :one
+
+    assert_no_difference "QuizReport.count" do
+      assert_emails 0 do
+        post quiz_report_path(:one), params: { quiz_report: { reason: "reason", spam: "1" } }
+        assert_response :redirect
+      end
+    end
   end
 end

@@ -11,3 +11,7 @@ two:
 admin:
   dark_mode: false
   user: admin
+
+confirmed:
+  dark_mode: false
+  user: confirmed

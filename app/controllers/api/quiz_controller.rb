@@ -321,11 +321,14 @@ class Api::QuizController < ApplicationController
   def report
     quiz = Quiz.find_by(uuid: params[:quiz_id])
 
+    return render "api/bug_report/not_verified", status: :unauthorized unless @api_user.verified?
+
     return json({ success: false, token: "quiz.notfound", message: "Quiz doesn't exist" }, :not_found) unless quiz.present?
 
     report = quiz.quiz_reports.new quiz_report_params
     report.user = @api_user
     if report.save
+      AdminMailer.with(quiz: quiz, quiz_report: report).new_quiz_report.deliver_later
       json({ success: true, message: "Quiz reported" }, :created)
     else
       json({ success: false, token: "record.invalid", message: "Record invalid", errors: report.errors.full_messages }, :unprocessable_entity)

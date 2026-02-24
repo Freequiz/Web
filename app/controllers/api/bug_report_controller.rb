@@ -8,19 +8,14 @@ class Api::BugReportController < ApplicationController
   skip_around_action :switch_locale
 
   def create
-    report = api_current_user.bug_reports.new(bug_report_params)
+    return render :not_verified, status: :unauthorized unless api_current_user.verified?
 
-    return json({ success: true, message: "Bug report created" }, :created) if report.save
-
-    json(
-      {
-        success: false,
-        token: "record.invalid",
-        errors: report.errors.details,
-        message: "Could not create bug report"
-      },
-      :unprocessable_entity
-    )
+    @report = api_current_user.bug_reports.new(bug_report_params)
+    if @report.save
+      render :bug_created, status: :created
+    else
+      render :bug_creation_error, status: :unprocessable_entity
+    end
   end
 
   private

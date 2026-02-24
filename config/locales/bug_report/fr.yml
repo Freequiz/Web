@@ -3,3 +3,4 @@ fr:
     create:
       bug_report_created: Bug signalé avec succès. Merci !
       failed_to_create: Le bug n'a pas pu être signalé. Essayez à nouveau plus tard
+      bug_report_not_verified: Pour signaler des bugs, tu dois confirmer ton adresse e-mail.

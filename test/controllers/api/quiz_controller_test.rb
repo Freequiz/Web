@@ -69,23 +69,38 @@ class Api::QuizControllerTest < ActionDispatch::IntegrationTest
 
   test "can report quiz" do
     assert_difference "QuizReport.count", 1 do
-      post api_quiz_report_path(quizzes(:two).uuid), params: { quiz_report: { spam: 1 } }, headers: api_sign_in(:one)
-      assert_response :success
-      assert_equal quizzes(:two), QuizReport.last.quiz
+      assert_emails User.where(role: "admin").count do
+        post api_quiz_report_path(quizzes(:two).uuid), params: { quiz_report: { spam: 1 } }, headers: api_sign_in(:confirmed)
+        assert_response :success
+        assert_equal quizzes(:two), QuizReport.last.quiz
+      end
     end
   end
 
   test "cannot report quiz when not logged in" do
     assert_no_difference "QuizReport.count" do
-      post api_quiz_report_path(quizzes(:two).uuid), params: { quiz_report: { spam: 1 } }
-      assert_response :unauthorized
+      assert_emails 0 do
+        post api_quiz_report_path(quizzes(:two).uuid), params: { quiz_report: { spam: 1 } }
+        assert_response :unauthorized
+      end
     end
   end
 
   test "cannot report non existing quiz" do
     assert_no_difference "QuizReport.count" do
-      post api_quiz_report_path("non-existing"), params: { quiz_report: { spam: 1 } }, headers: api_sign_in(:one)
-      assert_response :not_found
+      assert_emails 0 do
+        post api_quiz_report_path("non-existing"), params: { quiz_report: { spam: 1 } }, headers: api_sign_in(:confirmed)
+        assert_response :not_found
+      end
+    end
+  end
+
+  test "cannot report quiz without verified email" do
+    assert_no_difference "QuizReport.count" do
+      assert_emails 0 do
+        post api_quiz_report_path(quizzes(:two).uuid), params: { quiz_report: { spam: 1 } }, headers: api_sign_in(:one)
+        assert_response :unauthorized
+      end
     end
   end
 
