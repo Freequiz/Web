@@ -19,11 +19,18 @@ namespace :db do
     digest = Digest::SHA256.new
 
     tables.each do |table|
+      table_digest = Digest::SHA256.new
+
       table.all.each do |obj|
-        digest << JSON.dump(obj.attributes)
+        text = JSON.dump(obj.attributes)
+        digest << text
+        table_digest << text
       end
+
+      tab = table.to_s.length >= 11 ? "" : "\t"
+      puts "Hashed #{table} with \t#{tab}#{table.count} entries: \t#{table_digest}"
     end
 
-    puts digest
+    puts "\nFinal digest: #{digest}"
   end
 end
