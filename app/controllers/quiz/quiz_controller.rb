@@ -15,6 +15,8 @@ class Quiz::QuizController < ApplicationController
     redirect_to root_path, notice: tp("no_translations") unless @quiz.translations_count.positive?
   end
 
+  before_action :require_verified_email!, only: %i[new_report report]
+
   def cards; end
 
   def smart; end
@@ -156,5 +158,12 @@ class Quiz::QuizController < ApplicationController
       :child_abuse,
       :mobbing
     )
+  end
+
+  def require_verified_email!
+    return if current_user.verified?
+
+    flash.alert = tp("not_verified")
+    redirect_to quiz_show_path(params[:quiz_uuid])
   end
 end
