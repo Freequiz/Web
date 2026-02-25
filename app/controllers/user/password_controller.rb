@@ -37,7 +37,7 @@ class User::PasswordController < ApplicationController
       password: params[:password],
       password_confirmation: params[:password_confirmation]
     )
-      session[:user_id] = user.id
+      SessionManager.set_login_cookies(user, 1.day.from_now, cookies)
 
       user.sign_in
 

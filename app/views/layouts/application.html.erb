@@ -21,7 +21,7 @@
       gtag('config', 'G-2HQBXFVC0D');
     </script>
   </head>
-  <body class="<%= "dark" if @user.nil? || @user.setting.dark_mode %> overflow-x-hidden dark:bg-gray-900 dark:text-white">
+  <body class="<%= @dark_mode ? "dark" : "" %> overflow-x-hidden dark:bg-gray-900 dark:text-white">
     <%= render partial: "layouts/notification" %>
     <%= render partial: "layouts/bug_report" %>
     <%= render partial: "layouts/navbar" %>

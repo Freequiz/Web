@@ -60,13 +60,8 @@ class User::UserController < ApplicationController
     @new_user.current_sign_in_at = Time.now
 
     if @new_user.save
-      expires_in = 14.days
-      token = @new_user.signed_id(purpose: :login, expires_in:)
-
-      cookies.encrypted[:_session_token] = {
-        value: token,
-        expires: Time.now + expires_in
-      }
+      expires_in = 14.days.from_now
+      SessionManager.set_login_cookies(@new_user, expires_in, cookies)
 
       redirect_to user_verification_pending_path, notice: tp("created").sub("%s", @new_user.username)
     else

@@ -13,6 +13,11 @@ class ApplicationController < ActionController::Base
   end
 
   def switch_locale(&)
+    # Handle darkmode
+    @dark_mode = true
+    @dark_mode = current_user.setting.dark_mode if logged_in?
+
+    # Handle locale
     if (locale = session[:locale]).present?
       I18n.with_locale(locale, &)
     else
@@ -101,11 +106,7 @@ class ApplicationController < ActionController::Base
   private
 
   def login
-    @user = if User.exists?(id: session[:user_id])
-              User.find(session[:user_id])
-            else
-              User.find_signed cookies.encrypted[:_session_token], purpose: :login
-            end
+    @user = Session.authenticate(cookies.encrypted[:session_id], cookies.encrypted[:session_token])
     @user.present?
   end
 end

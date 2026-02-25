@@ -18,18 +18,21 @@ class User::SessionsController < ApplicationController
       return render :new, status: :unprocessable_entity
     end
 
-    if user.first.authenticate params[:password]
-      if params[:remember] == "1"
-        token = user.first.signed_id(purpose: :login, expires_in: 20.years)
-        cookies.encrypted.permanent[:_session_token] = token
-      end
+    user = user.first
 
-      session[:user_id] = user.first.id
+    if user.authenticate params[:password]
+      expires = if params[:remember] == "1"
+                  1.year.from_now
+                else
+                  1.day.from_now
+                end
 
-      user.first.sign_in
+      SessionManager.set_login_cookies(user, expires, cookies)
+
+      user.sign_in
       # Reset the locale in session store to allow the saved one to take over
       session[:locale] = nil
-      redirect_to(params[:gg].present? ? params[:gg] : user_path, notice: tp("success").sub("%s", user.first.username))
+      redirect_to(params[:gg].present? ? params[:gg] : user_path, notice: tp("success").sub("%s", user.username))
     else
       flash.now.alert = tp("wrong_password")
       render :new, status: 401
@@ -37,7 +40,14 @@ class User::SessionsController < ApplicationController
   end
 
   def destroy
+    session_id = cookies.encrypted[:session_id]
+    Session.find_by(session_id:)&.destroy
+    cookies.delete :session_id
+    cookies.delete :session_token
+
+    # Legacy session cookie
     cookies.delete :_session_token
+
     session[:locale] = nil
     session[:user_id] = nil
     redirect_to user_login_path, notice: tp("success")

@@ -16,6 +16,10 @@ class ActiveSupport::TestCase
     assert_response :redirect
   end
 
+  def cookie_jar
+    ActionDispatch::Cookies::CookieJar.build(request, cookies.to_hash)
+  end
+
   def api_sign_in(username, password = nil)
     password ||= username
     post api_user_login_path, params: { username:, password: }
