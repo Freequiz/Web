@@ -10,9 +10,10 @@ class ActiveSupport::TestCase
   fixtures :all
 
   # Add more helper methods to be used by all tests here...
-  def sign_in(username, password = nil)
+  def sign_in(username, password = nil, remember: true)
+    remember = remember ? "1" : "0"
     password ||= username
-    post user_login_path, params: { username:, password: }
+    post user_login_path, params: { username:, password:, remember: }
     assert_response :redirect
   end
 

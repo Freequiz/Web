@@ -6,12 +6,16 @@ class Session < ApplicationRecord
 
   has_secure_password :session_token
 
+  def expired?
+    expires < Time.now
+  end
+
   def self.authenticate(session_id, session_token)
     session = Session.find_by(session_id:)&.authenticate_session_token(session_token)
 
     return false unless session.present?
 
-    return false if session.expires < Time.now
+    return false if session.expired?
 
     session.user
   end
