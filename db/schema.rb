@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_02_23_151943) do
+ActiveRecord::Schema[7.1].define(version: 2026_02_25_100750) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_trgm"
   enable_extension "plpgsql"
@@ -116,6 +116,18 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_23_151943) do
     t.index ["user_id"], name: "index_scores_on_user_id"
   end
 
+  create_table "sessions", force: :cascade do |t|
+    t.string "session_id", null: false
+    t.string "session_token_digest", null: false
+    t.bigint "user_id", null: false
+    t.datetime "expires", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.string "from", null: false
+    t.index ["session_id"], name: "index_sessions_on_session_id"
+    t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
   create_table "settings", force: :cascade do |t|
     t.boolean "dark_mode", default: true
     t.bigint "user_id", null: false
@@ -178,6 +190,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_02_23_151943) do
   add_foreign_key "quizzes", "users"
   add_foreign_key "scores", "translations"
   add_foreign_key "scores", "users"
+  add_foreign_key "sessions", "users"
   add_foreign_key "settings", "users"
   add_foreign_key "transactions", "users"
   add_foreign_key "translations", "quizzes"

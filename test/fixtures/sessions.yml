@@ -1,0 +1,15 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  session_id: one
+  session_token_digest: <%= BCrypt::Password.create("session token 1") %>
+  user: one
+  expires: 2026-02-25 09:00:58
+  from: test
+
+two:
+  session_id: two
+  session_token_digest: <%= BCrypt::Password.create("session token 2") %>
+  user: two
+  expires: 2026-02-25 09:00:58
+  from: test

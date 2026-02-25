@@ -9,6 +9,7 @@ class User < ApplicationRecord
   has_many :favorite_quizzes, dependent: :destroy
   has_many :get_favorite_quizzes, through: :favorite_quizzes, source: :quiz
   has_many :quiz_reports, dependent: :nullify
+  has_many :sessions, dependent: :destroy
 
   ROLES = %w[user admin].freeze
 
