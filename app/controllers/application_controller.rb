@@ -106,7 +106,7 @@ class ApplicationController < ActionController::Base
   private
 
   def login
-    @user = Session.authenticate(cookies.encrypted[:session_id], cookies.encrypted[:session_token])
+    @user = Session.authenticate(cookies.encrypted[:session_id], cookies.encrypted[:session_token], "web")
     @user.present?
   end
 end

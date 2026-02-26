@@ -18,23 +18,28 @@ class SessionTest < ActiveSupport::TestCase
 
   test "can authenticate with session" do
     Session.create_new_session(users(:one), 1.hour.from_now, "test") => { session_id:, session_token: }
-    assert_equal users(:one), Session.authenticate(session_id, session_token)
+    assert_equal users(:one), Session.authenticate(session_id, session_token, "test")
   end
 
   test "cannot authenticate with expired session" do
     Session.create_new_session(users(:one), Time.now - 1.second, "test") => { session_id:, session_token: }
-    assert_not Session.authenticate(session_id, session_token)
+    assert_not Session.authenticate(session_id, session_token, "test")
   end
 
   test "cannot authenticate with wrong session id" do
     Session.create_new_session(users(:one), 1.hour.from_now, "test") => { session_id:, session_token: }
-    assert_not Session.authenticate("#{session_id}a", session_token)
-    assert_not Session.authenticate("a#{session_id}", session_token)
+    assert_not Session.authenticate("#{session_id}a", session_token, "test")
+    assert_not Session.authenticate("a#{session_id}", session_token, "test")
   end
 
   test "cannot authenticate with wrong session token" do
     Session.create_new_session(users(:one), 1.hour.from_now, "test") => { session_id:, session_token: }
-    assert_not Session.authenticate(session_id, "#{session_token}a")
-    assert_not Session.authenticate(session_id, "a#{session_token}")
+    assert_not Session.authenticate(session_id, "#{session_token}a", "test")
+    assert_not Session.authenticate(session_id, "a#{session_token}", "test")
+  end
+
+  test "cannot authenticate with wrong session from" do
+    Session.create_new_session(users(:one), 1.hour.from_now, "test") => { session_id:, session_token: }
+    assert_not Session.authenticate(session_id, session_token, "web")
   end
 end

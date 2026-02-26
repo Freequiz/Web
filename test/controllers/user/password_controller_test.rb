@@ -47,7 +47,7 @@ class User::PasswordControllerTest < ActionDispatch::IntegrationTest
     post user_password_edit_path(token), params: { password: "GoodPassword123", password_confirmation: "GoodPassword123" }
     assert_redirected_to user_path
     assert users(:one).reload.authenticate("GoodPassword123").present?
-    assert_equal users(:one), Session.authenticate(cookie_jar.encrypted[:session_id], cookie_jar.encrypted[:session_token])
+    assert_equal users(:one), Session.authenticate(cookie_jar.encrypted[:session_id], cookie_jar.encrypted[:session_token], "web")
   end
 
   test "can not update password with invalid token" do

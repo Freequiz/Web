@@ -10,14 +10,14 @@ class User::SessionsControllerTest < ActionDispatch::IntegrationTest
   test "login without remember cookie" do
     post user_login_path, params: { username: :one, password: :one }
     assert_redirected_to user_path
-    assert_equal Session.authenticate(cookie_jar.encrypted[:session_id], cookie_jar.encrypted[:session_token]), users(:one)
+    assert_equal Session.authenticate(cookie_jar.encrypted[:session_id], cookie_jar.encrypted[:session_token], "web"), users(:one)
     assert_in_delta Session.last.expires, 1.day.from_now, 10.seconds
   end
 
   test "login with remember cookie" do
     post user_login_path, params: { username: :one, password: :one, remember: "1" }
     assert_redirected_to user_path
-    assert_equal Session.authenticate(cookie_jar.encrypted[:session_id], cookie_jar.encrypted[:session_token]), users(:one)
+    assert_equal Session.authenticate(cookie_jar.encrypted[:session_id], cookie_jar.encrypted[:session_token], "web"), users(:one)
     assert_in_delta Session.last.expires, 1.year.from_now, 10.seconds
   end
 

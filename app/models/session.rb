@@ -10,12 +10,17 @@ class Session < ApplicationRecord
     expires < Time.now
   end
 
-  def self.authenticate(session_id, session_token)
+  def self.authenticate(session_id, session_token, auth_for)
     session = Session.find_by(session_id:)&.authenticate_session_token(session_token)
 
     return false unless session.present?
 
     return false if session.expired?
+
+    return false unless session.from == auth_for
+
+    # Update updated_at to show last used
+    session.touch
 
     session.user
   end
