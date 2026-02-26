@@ -5,11 +5,11 @@ one:
   session_token_digest: <%= BCrypt::Password.create("session token 1") %>
   user: one
   expires: 2026-02-25 09:00:58
-  from: test
+  purpose: test
 
 two:
   session_id: two
   session_token_digest: <%= BCrypt::Password.create("session token 2") %>
   user: two
   expires: 2026-02-25 09:00:58
-  from: test
+  purpose: test

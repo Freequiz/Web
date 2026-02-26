@@ -6,7 +6,8 @@ class Api::QuizController < ApplicationController
   skip_before_action :setup_login
   skip_around_action :switch_locale
 
-  before_action :api_require_valid_access_token!, except: %i[data search]
+  before_action :api_require_valid_access_token!, except: %i[data search score sync_score reset_score]
+  before_action :api_ajax_require_valid_access_token!, only: %i[score sync_score reset_score]
 
   def search
     query = ActiveRecord::Base.connection.quote(params[:query])

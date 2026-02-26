@@ -1,6 +1,8 @@
 require "test_helper"
 
 class Api::UserControllerTest < ActionDispatch::IntegrationTest
+  include ApiUtils
+
   test "blocked username validation" do
     get api_username_validator_path("Freequiz")
 
@@ -40,7 +42,7 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
     json = @response.parsed_body
 
     assert json["success"]
-    assert_equal User.find_by(username: "test").id, User.find_signed(json["access_token"], purpose: :api_token).id
+    assert_equal User.find_by(username: "test").id, find_api_user_by_token(json["access_token"]).id
   end
 
   test "user creation with missing data" do
@@ -173,7 +175,7 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
       post api_user_login_path, params: { username: "one", password: "one" }
     end
     assert_response :success
-    assert_equal users(:one), User.find_signed(@response.parsed_body["access_token"], purpose: :api_token)
+    assert_equal users(:one), find_api_user_by_token(@response.parsed_body["access_token"])
   end
 
   test "user login with invalid credentials" do
@@ -191,7 +193,7 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
       post api_user_login_path, params: { username: "one@one.one", password: "one" }
     end
     assert_response :success
-    assert_equal users(:one), User.find_signed(@response.parsed_body["access_token"], purpose: :api_token)
+    assert_equal users(:one), find_api_user_by_token(@response.parsed_body["access_token"])
   end
 
   test "user login with username case difference" do
@@ -199,7 +201,7 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
       post api_user_login_path, params: { username: "One", password: "one" }
     end
     assert_response :success
-    assert_equal users(:one), User.find_signed(@response.parsed_body["access_token"], purpose: :api_token)
+    assert_equal users(:one), find_api_user_by_token(@response.parsed_body["access_token"])
   end
 
   test "user login with email case difference" do
@@ -207,7 +209,7 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
       post api_user_login_path, params: { username: "one@OnE.one", password: "one" }
     end
     assert_response :success
-    assert_equal users(:one), User.find_signed(@response.parsed_body["access_token"], purpose: :api_token)
+    assert_equal users(:one), find_api_user_by_token(@response.parsed_body["access_token"])
   end
 
   test "login when user is banned" do
@@ -220,7 +222,7 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
 
     token = @response.parsed_body["access_token"]
-    assert_equal users(:one), User.find_signed(token, purpose: :api_token)
+    assert_equal users(:one), find_api_user_by_token(token)
 
     post api_user_refresh_token_path, headers: { "Authorization" => token }
     assert_response :success
@@ -228,7 +230,7 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
     new_token = @response.parsed_body["access_token"]
 
     assert_not_equal token, new_token
-    assert_equal users(:one), User.find_signed(new_token, purpose: :api_token)
+    assert_equal users(:one), find_api_user_by_token(new_token)
   end
 
   test "refresh access token with invalid token" do

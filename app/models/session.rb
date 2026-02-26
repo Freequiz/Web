@@ -10,14 +10,14 @@ class Session < ApplicationRecord
     expires < Time.now
   end
 
-  def self.authenticate(session_id, session_token, auth_for)
+  def self.authenticate(session_id, session_token, purpose)
     session = Session.find_by(session_id:)&.authenticate_session_token(session_token)
 
     return false unless session.present?
 
     return false if session.expired?
 
-    return false unless session.from == auth_for
+    return false unless session.purpose == purpose
 
     # Update updated_at to show last used
     session.touch
@@ -25,7 +25,7 @@ class Session < ApplicationRecord
     session.user
   end
 
-  def self.create_new_session(user, expires, from)
+  def self.create_new_session(user, expires, purpose)
     session_id = SecureRandom.alphanumeric(SESSION_ID_LENGTH)
     session_token = SecureRandom.alphanumeric(SESSION_TOKEN_LENGTH)
 
@@ -34,7 +34,7 @@ class Session < ApplicationRecord
       session_token:,
       user:,
       expires:,
-      from:
+      purpose:
     )
 
     raise "Could not create Session" unless session.save
