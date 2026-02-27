@@ -38,8 +38,24 @@ class SessionTest < ActiveSupport::TestCase
     assert_not Session.authenticate(session_id, "a#{session_token}", "test")
   end
 
-  test "cannot authenticate with wrong session from" do
+  test "cannot authenticate with wrong session purpose" do
     Session.create_new_session(users(:one), 1.hour.from_now, "test") => { session_id:, session_token: }
     assert_not Session.authenticate(session_id, session_token, "web")
+  end
+
+  test "session active scope" do
+    timestamps = [20.minutes, 1.hour, 5.hours, 24.hours, 2.days, 1.month, 1.year]
+
+    timestamps.each do |timestamp|
+      Session.create_new_session(users(:one), timestamp.from_now, "test")
+    end
+
+    assert_equal timestamps.length, users(:one).reload.sessions.active.count
+
+    timestamps.each_with_index do |timestamp, index|
+      travel timestamp + 5.seconds do
+        assert_equal timestamps.length - (index + 1), users(:one).reload.sessions.active.count
+      end
+    end
   end
 end

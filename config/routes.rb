@@ -92,6 +92,8 @@ Rails.application.routes.draw do
         put "create", to: "user#create", as: "user_create"
         post "login", to: "user#login", as: "user_login"
         post "refresh", to: "user#refresh_token", as: "user_refresh_token"
+        delete "logout", to: "user#logout", as: "user_logout"
+        delete "destroy_session/:session_id", to: "user#destroy_session", as: "user_destroy_session"
 
         get "search(/:page)", to: "user#search", as: "user_search"
 

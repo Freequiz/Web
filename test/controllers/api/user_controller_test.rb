@@ -269,6 +269,27 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
+  test "can get user quizzes with api token" do
+    Session.create_new_session(users(:one), 1.hour.from_now, "api") => { session_id:, session_token: }
+    headers = { "Authorization" => "#{session_id}:#{session_token}" }
+    get(api_user_quizzes_path, headers:)
+    assert_response :success
+  end
+
+  test "cannot get user quizzes with web token" do
+    Session.create_new_session(users(:one), 1.hour.from_now, "web") => { session_id:, session_token: }
+    headers = { "Authorization" => "#{session_id}:#{session_token}" }
+    get(api_user_quizzes_path, headers:)
+    assert_response :unauthorized
+  end
+
+  test "cannot get user quizzes with ajax token" do
+    Session.create_new_session(users(:one), 1.hour.from_now, "ajax") => { session_id:, session_token: }
+    headers = { "Authorization" => "#{session_id}:#{session_token}" }
+    get(api_user_quizzes_path, headers:)
+    assert_response :unauthorized
+  end
+
   test "user favorites" do
     get api_user_favorites_path, headers: api_sign_in(:one)
     assert_response :success
@@ -381,14 +402,154 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "can get user data" do
-    get api_user_data_path, headers: api_sign_in(:one)
+    Session.create_new_session(users(:one), 2.hour.from_now, "api") => { session:, session_id:, session_token: }
+    headers = { "Authorization" => "#{session_id}:#{session_token}" }
+
+    # Create more session to test session data
+    Session.create_new_session(users(:one), 1.hour.from_now, "web")
+    Session.create_new_session(users(:one), 1.hour.from_now, "ajax")
+
+    get(api_user_data_path, headers:)
     assert_response :success
 
     assert_equal users(:one).username, @response.parsed_body["data"]["username"]
+
+    json = @response.parsed_body
+    assert json.key?("success")
+    assert json.key?("data")
+    assert json["success"]
+
+    data = json["data"]
+    required_keys = %w[username avatar_url email unconfirmed_email role quizzes created_at updated_at settings confirmation logins]
+    required_keys.each do |key|
+      assert data.key?(key)
+    end
+
+    assert_equal 3, data["logins"]["sessions"].length
+    data["logins"]["sessions"].each do |s|
+      if s["purpose"] == "api"
+        assert s["current_session"]
+        assert_equal session.expires.to_i, s["expires"]
+        assert_equal session.session_id, s["session_id"]
+      else
+        assert_not s["current_session"]
+      end
+    end
   end
 
   test "cannot get user data without being logged in" do
     get api_user_data_path
     assert_response :unauthorized
+  end
+
+  test "cannot get user data without web token" do
+    Session.create_new_session(users(:one), 1.hour.from_now, "web") => { session_id:, session_token: }
+    headers = { "Authorization" => "#{session_id}:#{session_token}" }
+    get(api_user_data_path, headers:)
+    assert_response :unauthorized
+  end
+
+  test "cannot get user data without ajax token" do
+    Session.create_new_session(users(:one), 1.hour.from_now, "ajax") => { session_id:, session_token: }
+    headers = { "Authorization" => "#{session_id}:#{session_token}" }
+    get(api_user_data_path, headers:)
+    assert_response :unauthorized
+  end
+
+  test "can logout" do
+    headers = nil
+
+    assert_changes "Session.count", 1 do
+      headers = api_sign_in(:one)
+      get(api_user_data_path, headers:)
+      assert_response :success
+    end
+
+    assert_changes "Session.count", -1 do
+      delete(api_user_logout_path, headers:)
+      assert_response :success
+    end
+
+    get(api_user_data_path, headers:)
+    assert_response :unauthorized
+  end
+
+  test "cannot logout when not logged in" do
+    assert_no_changes "Session.count" do
+      delete api_user_logout_path
+      assert_response :unauthorized
+    end
+  end
+
+  test "can destroy current session" do
+    headers = api_sign_in(:one)
+    session_id = headers["Authorization"].split(":").first
+
+    get(api_user_data_path, headers:)
+    assert_response :success
+
+    assert_changes "Session.count", -1 do
+      delete(api_user_destroy_session_path(session_id), headers:)
+      assert_response :success
+    end
+
+    get(api_user_data_path, headers:)
+    assert_response :unauthorized
+  end
+
+  test "can destroy session" do
+    headers = api_sign_in(:one)
+    Session.create_new_session(users(:one), 1.hour.from_now, "api") => { session_id:, session_token: }
+    to_be_destroyed_header = { "Authorization" => "#{session_id}:#{session_token}" }
+
+    get(api_user_data_path, headers: to_be_destroyed_header)
+    assert_response :success
+
+    assert_changes "Session.count", -1 do
+      delete(api_user_destroy_session_path(session_id), headers:)
+      assert_response :success
+    end
+
+    get(api_user_data_path, headers: to_be_destroyed_header)
+    assert_response :unauthorized
+
+    get(api_user_data_path, headers:)
+    assert_response :success
+  end
+
+  test "cannot destroy session when not logged in" do
+    Session.create_new_session(users(:one), 1.hours.from_now, "api") => { session_id:, session_token: }
+    not_to_be_destroyed = { "Authorization" => "#{session_id}:#{session_token}" }
+
+    get(api_user_data_path, headers: not_to_be_destroyed)
+    assert_response :success
+
+    assert_no_changes "Session.count" do
+      delete(api_user_destroy_session_path(session_id))
+      assert_response :unauthorized
+    end
+
+    get(api_user_data_path, headers: not_to_be_destroyed)
+    assert_response :success
+  end
+
+  test "cannot destroy other users session" do
+    headers = api_sign_in(:one)
+    Session.create_new_session(users(:two), 1.hour.from_now, "api") => { session_id:, session_token: }
+    not_to_be_destroyed = { "Authorization" => "#{session_id}:#{session_token}" }
+
+    get(api_user_data_path, headers:)
+    assert_response :success
+
+    get(api_user_data_path, headers: not_to_be_destroyed)
+    assert_response :success
+
+    assert_no_changes "Session.count" do
+      delete(api_user_destroy_session_path(session_id), headers:)
+      assert_response :unauthorized
+    end
+
+    get(api_user_data_path, headers: not_to_be_destroyed)
+    assert_response :success
   end
 end

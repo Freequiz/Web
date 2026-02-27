@@ -6,6 +6,8 @@ class Session < ApplicationRecord
 
   has_secure_password :session_token
 
+  scope :active, -> { where(expires: Time.now...) }
+
   def expired?
     expires < Time.now
   end

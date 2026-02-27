@@ -1,19 +1,25 @@
 require "test_helper"
 
 class Api::QuizControllerTest < ActionDispatch::IntegrationTest
+  def test_quiz
+    {
+      quiz: {
+        title: "Test Quiz",
+        from: languages(:german).id,
+        to: languages(:english).id,
+        visibility: "public",
+        translations_attributes: [
+          { word: "Haus", translation: "House" },
+          { word: "Katze", translation: "Cat" }
+        ]
+      }
+    }.freeze
+  end
+
   test "can create quiz" do
     assert_difference "Quiz.count", 1 do
       assert_difference "Translation.count", 2 do
-        put api_quiz_create_path, params: { quiz: {
-          title: "Test Quiz",
-          from: language_id(:german),
-          to: language_id(:english),
-          visibility: "public",
-          translations_attributes: [
-            { word: "Haus", translation: "House" },
-            { word: "Katze", translation: "Cat" }
-          ]
-        } }, headers: api_sign_in(:one)
+        put api_quiz_create_path, params: test_quiz, headers: api_sign_in(:one)
         assert_response :success
       end
     end
@@ -21,17 +27,41 @@ class Api::QuizControllerTest < ActionDispatch::IntegrationTest
 
   test "cannot create quiz when not logged in" do
     assert_no_difference "Quiz.count" do
-      put api_quiz_create_path, params: { quiz: {
-        title: "Test Quiz",
-        from: language_id(:german),
-        to: language_id(:english),
-        visibility: "public",
-        translations_attributes: [
-          { word: "Haus", translation: "House" },
-          { word: "Katze", translation: "Cat" }
-        ]
-      } }
+      put api_quiz_create_path, params: test_quiz
       assert_response :unauthorized
+    end
+  end
+
+  test "can create quiz with api token" do
+    Session.create_new_session(users(:one), 1.day.from_now, "api") => { session_id:, session_token: }
+    headers = { "Authorization" => "#{session_id}:#{session_token}" }
+    assert_difference "Quiz.count", 1 do
+      assert_difference "Translation.count", 2 do
+        put(api_quiz_create_path, params: test_quiz, headers:)
+        assert_response :success
+      end
+    end
+  end
+
+  test "cannot create quiz with web token" do
+    Session.create_new_session(users(:one), 1.day.from_now, "web") => { session_id:, session_token: }
+    headers = { "Authorization" => "#{session_id}:#{session_token}" }
+    assert_no_difference "Quiz.count" do
+      assert_no_difference "Translation.count" do
+        put(api_quiz_create_path, params: test_quiz, headers:)
+        assert_response :unauthorized
+      end
+    end
+  end
+
+  test "cannot create quiz with ajax token" do
+    Session.create_new_session(users(:one), 1.day.from_now, "ajax") => { session_id:, session_token: }
+    headers = { "Authorization" => "#{session_id}:#{session_token}" }
+    assert_no_difference "Quiz.count" do
+      assert_no_difference "Translation.count" do
+        put(api_quiz_create_path, params: test_quiz, headers:)
+        assert_response :unauthorized
+      end
     end
   end
 
@@ -250,9 +280,9 @@ class Api::QuizControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "change scores" do
+  def change_scores(headers)
     assert_changes -> { scores(:one).reload.cards }, from: 0, to: 5 do
-      patch api_quiz_score_path(quizzes(:one).uuid, scores(:one).id, :cards), params: { score: 5 }, headers: api_sign_in(:one)
+      patch(api_quiz_score_path(quizzes(:one).uuid, scores(:one).id, :cards), params: { score: 5 }, headers:)
       assert_response :success
     end
 
@@ -271,7 +301,7 @@ class Api::QuizControllerTest < ActionDispatch::IntegrationTest
     }
 
     assert_changes -> { users(:one).favorite_quiz?(quizzes(:one)) } do
-      patch api_quiz_sync_score_path(quizzes(:one).uuid), params: { quiz: data }, headers: api_sign_in(:one), as: :json
+      patch api_quiz_sync_score_path(quizzes(:one).uuid), params: { quiz: data }, headers:, as: :json
     end
 
     @response.parsed_body["quiz_data"]["data"].each do |translation|
@@ -281,11 +311,34 @@ class Api::QuizControllerTest < ActionDispatch::IntegrationTest
       assert_equal 1, translation["score"]["write"]
     end
 
-    patch api_quiz_reset_score_path(quizzes(:one).uuid, :cards), headers: api_sign_in(:one)
+    patch(api_quiz_reset_score_path(quizzes(:one).uuid, :cards), headers:)
     assert_response :success
 
     @response.parsed_body["updated_data"].each do |translation|
       assert_equal 0, translation["score"]["cards"]
+    end
+  end
+
+  test "change scores" do
+    change_scores(api_sign_in(:one))
+  end
+
+  test "change scores with api token" do
+    Session.create_new_session(users(:one), 1.hour.from_now, "api") => { session_id: api_session_id, session_token: api_session_token }
+    change_scores({ "Authorization" => "#{api_session_id}:#{api_session_token}" })
+  end
+
+  test "change scores with ajax token" do
+    Session.create_new_session(users(:one), 1.hour.from_now, "ajax") => { session_id: ajax_session_id, session_token: ajax_session_token }
+    change_scores({ "Authorization" => "#{ajax_session_id}:#{ajax_session_token}" })
+  end
+
+  test "cannot change score with web token" do
+    Session.create_new_session(users(:one), 1.hour.from_now, "web") => { session_id:, session_token: }
+    headers = { "Authorization" => "#{session_id}:#{session_token}" }
+    assert_no_changes -> { scores(:one).reload.cards } do
+      patch(api_quiz_score_path(quizzes(:one).uuid, scores(:one).id, :cards), params: { score: 5 }, headers:)
+      assert_response :unauthorized
     end
   end
 end

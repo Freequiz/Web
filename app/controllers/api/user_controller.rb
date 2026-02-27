@@ -317,6 +317,16 @@ class Api::UserController < ApplicationController
     Setting::SETTING_KEYS.each do |key|
       @settings[key] = @api_user.setting[key]
     end
+    @sessions = @api_user.sessions.active
+    @active_session_id = request.headers["Authorization"].split(":")[0]
+  end
+
+  def logout
+    session_id = request.headers["Authorization"].split(":")[0]
+    Session.find_by(session_id:).destroy
+  end
+
+  def destroy_session
   end
 
   private
