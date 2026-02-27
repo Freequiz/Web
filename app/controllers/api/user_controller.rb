@@ -68,9 +68,9 @@ class Api::UserController < ApplicationController
   end
 
   def username_validator
-    return json({ success: true, valid: false, token: "username.blocked" }, 406) if BlockedUserDatum.username_blocked? params[:username]
+    return json({ success: true, valid: false, token: "username.blocked" }, :not_acceptable) if BlockedUserDatum.username_blocked? params[:username]
 
-    return json({ success: true, valid: false, token: "username.taken" }, 409) if User.exists? username: params[:username]
+    return json({ success: true, valid: false, token: "username.taken" }, :conflict) if User.exists? username: params[:username]
 
     json({ success: true, valid: true })
   end
