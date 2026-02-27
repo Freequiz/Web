@@ -24,7 +24,7 @@ class ActiveSupport::TestCase
   def api_sign_in(username, password = nil)
     password ||= username
     post api_user_login_path, params: { username:, password: }
-    { Authorization: @response.parsed_body["access_token"] }
+    { "Authorization" => @response.parsed_body["access_token"] }
   end
 
   def language_id(name)

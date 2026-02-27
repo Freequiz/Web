@@ -327,6 +327,10 @@ class Api::UserController < ApplicationController
   end
 
   def destroy_session
+    session = @api_user.sessions.find_by(session_id: params[:session_id])
+    return render :session_already_gone, status: :not_found unless session.present?
+
+    session.destroy
   end
 
   private

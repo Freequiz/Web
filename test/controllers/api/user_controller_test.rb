@@ -546,7 +546,7 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
 
     assert_no_changes "Session.count" do
       delete(api_user_destroy_session_path(session_id), headers:)
-      assert_response :unauthorized
+      assert_response :not_found
     end
 
     get(api_user_data_path, headers: not_to_be_destroyed)
