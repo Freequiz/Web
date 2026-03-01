@@ -29,7 +29,7 @@ json.data do
   json.email @api_user.email
   json.unconfirmed_email @api_user.unconfirmed_email
   json.role @api_user.role
-  json.quizzes @api_user.quizzes
+  json.quizzes @api_user.quizzes.count
   json.created_at @api_user.created_at.to_i
   json.updated_at @api_user.updated_at.to_i
   json.settings @settings
