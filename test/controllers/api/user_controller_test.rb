@@ -421,8 +421,12 @@ class Api::UserControllerTest < ActionDispatch::IntegrationTest
 
     data = json["data"]
     required_keys = %w[username avatar_url email unconfirmed_email role quizzes created_at updated_at settings confirmation logins]
-    required_keys.each do |key|
+    key_types = [String, String, String, nil, String, Integer, Integer, Integer, Hash, Hash, Hash]
+    required_keys.each_with_index do |key, index|
       assert data.key?(key)
+      if (type = key_types[index]).present?
+        assert_kind_of type, data[key]
+      end
     end
 
     assert_equal 3, data["logins"]["sessions"].length
