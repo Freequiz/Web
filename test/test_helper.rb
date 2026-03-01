@@ -4,7 +4,8 @@ require "rails/test_help"
 
 class ActiveSupport::TestCase
   # Run tests in parallel with specified workers
-  parallelize(workers: :number_of_processors)
+  # Use only on process if using a debugger as 12 processes doesn't allow the debugger to run
+  parallelize(workers: :number_of_processors) unless ENV.key?("RUBY_DEBUG_OPEN")
 
   # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
   fixtures :all
