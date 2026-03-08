@@ -33,4 +33,6 @@ RUN bundle install
 
 RUN npm install
 
-CMD [ "bin/dev" ]
+RUN bin/rails assets:clobber assets:precompile
+
+CMD [ "bin/rails server -b 0.0.0.0" ]
