@@ -6,6 +6,7 @@ services:
       - "3000:3000"
     environment:
       POSTGRES_PASSWORD: devpassword
+    restart: unless-stopped
 
   postgres:
     image: postgres:17
@@ -13,11 +14,13 @@ services:
       POSTGRES_PASSWORD: devpassword
     volumes:
       - dev-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
 
   mailhog:
     image: mailhog/mailhog:v1.0.1
     ports:
       - "8025:8025"
+    restart: unless-stopped
 
 volumes:
   dev-db-data:
