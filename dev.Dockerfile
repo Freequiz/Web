@@ -3,7 +3,8 @@
 FROM ruby:3.2.10-bookworm
 
 ENV RAILS_ENV="development" \
-    BUNDLE_WITHOUT=""
+    BUNDLE_WITHOUT="" \
+    FREEQUIZ_FLUTTER_TEST="1"
 
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \

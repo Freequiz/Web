@@ -23,6 +23,9 @@ Rails.application.configure do
   # Allow codespace as host
   config.hosts << "#{codespace_name}-3000.app.github.dev" unless codespace_name.nil?
 
+  # Allow test.freequiz.ch for flutter testing
+  config.hosts << "test.freequiz.ch" unless ENV.fetch("FREEQUIZ_FLUTTER_TEST", nil).nil?
+
   # If codespace is active disable origin check: https://github.com/orgs/community/discussions/156532
   # Codespace proxy sets the Origin header to http://localhost:3000 but request.base_url stays the URL of the codespace
   config.action_controller.forgery_protection_origin_check = false unless codespace_name.nil?
