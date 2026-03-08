@@ -29,4 +29,8 @@ WORKDIR /app
 
 COPY . .
 
+RUN bundle install
+
+RUN npm install
+
 CMD [ "bin/dev" ]
